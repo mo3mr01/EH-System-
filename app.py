@@ -24,7 +24,7 @@ with col_logo2:
 
 # ----------- العنوان -----------
 st.markdown(
-    "<h1 style='text-align: center; margin-top: -20px;'>📚 Student Grades Viewer</h1>",
+    "<h1 style='text-align: center; margin-top: -20px;'> English House Student Data Viewer </h1>",
     unsafe_allow_html=True
 )
 
@@ -64,8 +64,8 @@ if df is not None:
                 )
 
                 # تجهيز البيانات كجدول
-                row_df = pd.DataFrame(row).rename(columns={index: "القيمة"})
-                row_df.index.name = "البند"
+                row_df = pd.DataFrame(row).rename(columns={index: "Value"})
+                row_df.index.name = "Cloumn"
                 row_df = row_df.reset_index()
 
                 # جدول صغير في المنتصف
@@ -92,3 +92,4 @@ if df is not None:
 
 else:
     st.warning("ملف البيانات غير موجود.")
+
