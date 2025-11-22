@@ -18,9 +18,12 @@ def load_data(path):
 st.set_page_config(layout="wide")
 
 # ----------- اللوجو في المنتصف -----------
-col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
-with col_logo2:
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
     st.image("logo.png", width=200)
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 # ----------- العنوان -----------
 st.markdown(
@@ -92,4 +95,5 @@ if df is not None:
 
 else:
     st.warning("ملف البيانات غير موجود.")
+
 
