@@ -28,7 +28,7 @@ def load_grades():
         df = pd.read_excel(DATA_PATH)
 
         # الأعمدة الأساسية المطلوبة
-        required_cols = ["الاسم", "رقم_الطالب", "رقم_ولي_الامر"]
+        required_cols = ["الاســــــــــــم", "رقم_الطالب", "رقم_ولي_الامر"]
 
         # تأكد أن الأعمدة موجودة
         for col in required_cols:
@@ -62,13 +62,13 @@ else:
 
     if query:
         if search_by == "اسم الطالب":
-            filtered = df[df["الاسم"].astype(str).str.contains(query, case=False, na=False)]
+            filtered = df[df["الاســــــــــــم"].astype(str).str.contains(query, case=False, na=False)]
 
         elif search_by == "رقم الطالب":
-            filtered = df[df["رقم_الطالب"].astype(str).str.contains(query, na=False)]
+            filtered = df[df["رقم الطالب"].astype(str).str.contains(query, na=False)]
 
         elif search_by == "رقم ولي الأمر":
-            filtered = df[df["رقم_ولي_الامر"].astype(str).str.contains(query, na=False)]
+            filtered = df[df["رقم ولي الامر"].astype(str).str.contains(query, na=False)]
 
     # ---------------------------
     # عرض النتائج
@@ -88,3 +88,4 @@ else:
     else:
         if query:
             st.info("لا توجد نتائج مطابقة لبحثك.")
+
