@@ -28,7 +28,7 @@ def load_grades():
         df = pd.read_excel(DATA_PATH)
 
         # الأعمدة الأساسية المطلوبة
-        required_cols = ["الاســــــــــــم", "رقم_الطالب", "رقم_ولي_الامر"]
+        required_cols = ["الاســــــــــــم", "رقم الطالب", "رقم ولي الامر"]
 
         # تأكد أن الأعمدة موجودة
         for col in required_cols:
@@ -88,4 +88,5 @@ else:
     else:
         if query:
             st.info("لا توجد نتائج مطابقة لبحثك.")
+
 
