@@ -2,92 +2,63 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 
-# ---------------------------
-# إعداد الصفحة + اللوجو
-# ---------------------------
 st.set_page_config(page_title="Student Grades Viewer", layout="wide")
 
-# ضع اللوجو في نفس مجلد الملف باسم logo.png
-try:
-    st.image("logo.png", width=200)
-except:
-    pass
+st.image("logo.png", width=180)
+st.title("Student Grades Table")
 
-st.title("🎓 Student Grades Viewer")
-
-# ---------------------------
-# تحميل البيانات + تجهيز الأعمدة
-# ---------------------------
 DATA_PATH = Path("grades.xlsx")
 
-@st.cache_data(ttl=60)
-def load_grades():
+def load_data():
     if not DATA_PATH.exists():
         return None
     try:
         df = pd.read_excel(DATA_PATH)
-
-        # الأعمدة الأساسية المطلوبة
-        required_cols = ["الاســــــــــــم", "رقم الطالب", "رقم ولي الأمر"]
-
-        # تأكد أن الأعمدة موجودة
-        for col in required_cols:
-            if col not in df.columns:
-                st.error(f"❌ العمود '{col}' غير موجود داخل ملف Excel!")
-                return None
-
-        # ترتيب الأعمدة: الأساسية ثم باقي الأعمدة
-        other_cols = [c for c in df.columns if c not in required_cols]
-        df = df[required_cols + other_cols]
-
         return df
-
-    except Exception as e:
-        st.error(f"خطأ أثناء قراءة الملف: {e}")
+    except:
         return None
 
+df = load_data()
 
-df = load_grades()
-
-# ---------------------------
-# واجهة البحث
-# ---------------------------
 if df is None:
-    st.warning("⚠️ ملف الدرجات غير موجود أو به مشكلة. تأكد من وجود grades.xlsx في نفس المجلد.")
+    st.error("Data file not found.")
 else:
-    search_by = st.radio("البحث بواسطة:", ["اسم الطالب", "رقم الطالب", "رقم ولي الأمر"])
-    query = st.text_input("اكتب ما تبحث عنه هنا:")
+    search_by = st.radio("Search by:", ["ID", "Name"])
+    query = st.text_input("Enter search value:")
 
-    filtered = df.copy()
+    student_name_col = "الاسم"
+    student_id_col = "رقم الطالب"
+    parent_col = "رقم ولي الامر"
+
+    fixed_cols = [student_name_col, student_id_col, parent_col]
+    grade_cols = [c for c in df.columns if c not in fixed_cols]
+
+    final_df = pd.DataFrame()
+    final_df["Student Name"] = df[student_name_col]
+    final_df["Student ID"] = df[student_id_col]
+    final_df["Parent Number"] = df[parent_col]
+
+    for col in grade_cols:
+        final_df[col] = df[col]
 
     if query:
-        if search_by == "اسم الطالب":
-            filtered = df[df["الاســــــــــــم"].astype(str).str.contains(query, case=False, na=False)]
+        if search_by == "ID":
+            results = final_df[final_df["Student ID"].astype(str).str.contains(query, na=False)]
+        else:
+            results = final_df[final_df["Student Name"].astype(str).str.contains(query, case=False, na=False)]
 
-        elif search_by == "رقم الطالب":
-            filtered = df[df["رقم الطالب"].astype(str).str.contains(query, na=False)]
+        if not results.empty:
+            st.success(f"{len(results)} result(s) found")
+            st.dataframe(results, use_container_width=True)
 
-        elif search_by == "رقم ولي الأمر":
-            filtered = df[df["رقم ولي الأمر"].astype(str).str.contains(query, na=False)]
-
-    # ---------------------------
-    # عرض النتائج
-    # ---------------------------
-    if not filtered.empty:
-        st.success(f"تم العثور على {len(filtered)} نتيجة")
-        st.dataframe(filtered, use_container_width=True)
-
-        # زر التحميل
-        csv = filtered.to_csv(index=False)
-        st.download_button(
-            "تحميل النتائج (CSV)",
-            data=csv,
-            file_name="filtered_results.csv",
-            mime="text/csv"
-        )
+            csv = results.to_csv(index=False)
+            st.download_button(
+                label="Download Results (CSV)",
+                data=csv,
+                file_name="results.csv",
+                mime="text/csv"
+            )
+        else:
+            st.info("No results found.")
     else:
-        if query:
-            st.info("لا توجد نتائج مطابقة لبحثك.")
-
-
-
+        st.dataframe(final_df, use_container_width=True)
