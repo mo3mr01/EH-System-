@@ -2,9 +2,61 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 
+# ---------- إعداد الصفحة ----------
+st.set_page_config(
+    page_title="Student Grades",
+    page_icon="📚",
+    layout="centered"
+)
+
+# ---------- تحميل الخط + تنسيق CSS ----------
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Tajawal', sans-serif;
+}
+
+/* card style */
+.block-container {
+    padding-top: 40px !important;
+}
+
+/* center logo */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* search box in center */
+.search-area {
+    display: flex;
+    justify-content: center;
+}
+
+/* make table smaller + RTL */
+.small-table table {
+    direction: rtl;
+    font-size: 16px;
+}
+
+.small-table th {
+    background: #007bff !important;
+    color: white !important;
+    text-align: center !important;
+}
+
+.small-table td {
+    text-align: center !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ---------- المسار ----------
 DATA_PATH = Path("grades.xlsx")
 
-# ----------- قراءة البيانات -----------
 @st.cache_data(ttl=60)
 def load_data(path):
     try:
@@ -14,33 +66,29 @@ def load_data(path):
         st.error(f"خطأ في قراءة الملف: {e}")
         return None
 
-# ----------- إعداد الصفحة -----------
-st.set_page_config(layout="wide")
+# ---------- واجهة البرنامج ----------
+# اللوجو في المنتصف
+st.markdown('<div class="logo-container">', unsafe_allow_html=True)
+st.image("logo.png", width=200)   # ← غيّر اسم الصورة حسب ملفك
+st.markdown('</div>', unsafe_allow_html=True)
 
-# ----------- اللوجو في المنتصف -----------
-col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
-with col_logo2:
-    st.image("logo.png", width=200)
-
-# ----------- العنوان -----------
-st.markdown(
-    "<h1 style='text-align: center; margin-top: -20px;'>📚 Student Grades Viewer</h1>",
-    unsafe_allow_html=True
-)
+# العنوان
+st.markdown("<h2 style='text-align:center; color:#333;'>📚 نظام عرض درجات الطلاب</h2>", unsafe_allow_html=True)
 
 df = load_data(DATA_PATH)
 
-# ----------- محتوى الصفحة -----------
 if df is not None:
 
-    # البحث في منتصف الصفحة
-    colA, colB, colC = st.columns([1, 2, 1])
-    with colB:
-        search_by = st.radio("البحث بواسطة:", ["ID", "الاسم"], horizontal=True)
-        query = st.text_input("اكتب ID أو الاسم هنا:")
+    st.write("")  # مسافة بسيطة
+
+    # البحث في المنتصف
+    st.markdown('<div class="search-area">', unsafe_allow_html=True)
+    search_by = st.radio("البحث بواسطة:", ["ID", "الاسم"], horizontal=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    query = st.text_input("اكتب ID أو الاسم هنا:")
 
     if query:
-        # البحث حسب ID أو الاسم
         if search_by == "ID":
             try:
                 qnum = float(query)
@@ -50,45 +98,15 @@ if df is not None:
         else:
             results = df[df.iloc[:, 1].astype(str).str.contains(query, case=False, na=False)]
 
-        # لو في نتائج
         if not results.empty:
-            st.success(f"تم العثور على {len(results)} نتيجة/نتائج")
+            st.success(f"تم العثور على {len(results)} نتيجة")
 
-            for index, row in results.iterrows():
-                st.markdown("---")
-
-                # عنوان بيانات الطالب
-                st.markdown(
-                    "<h3 style='text-align: center; color:#2c70d3;'>🎓 بيانات الطالب</h3>",
-                    unsafe_allow_html=True
-                )
-
-                # تجهيز البيانات كجدول
-                row_df = pd.DataFrame(row).rename(columns={index: "القيمة"})
-                row_df.index.name = "البند"
-                row_df = row_df.reset_index()
-
-                # جدول صغير في المنتصف
-                table_col1, table_col2, table_col3 = st.columns([1, 2, 1])
-                with table_col2:
-
-                    # تنسيق RTL
-                    st.markdown("""
-                    <style>
-                        .rtl-table {
-                            direction: rtl;
-                            text-align: right;
-                            font-size: 16px;
-                        }
-                    </style>
-                    """, unsafe_allow_html=True)
-
-                    st.markdown('<div class="rtl-table">', unsafe_allow_html=True)
-                    st.table(row_df)
-                    st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="small-table">', unsafe_allow_html=True)
+            st.dataframe(results, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
         else:
             st.info("لا توجد نتائج للبحث.")
 
 else:
-    st.warning("ملف البيانات غير موجود.")
+    st.warning("⚠️ ملف البيانات غير موجود.")
