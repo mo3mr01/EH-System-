@@ -61,13 +61,13 @@ if df is not None:
 
                 # عنوان بيانات الطالب
                 st.markdown(
-                    "<h3 style='text-align: center; color:#2c70d3;'>🎓 بيانات الطالب</h3>",
+                    "<h3 style='text-align: center; color:#2c70d3;'>بيانات الطالب/ة 👨‍🏫</h3>",
                     unsafe_allow_html=True
                 )
 
                 # تجهيز البيانات كجدول
                 row_df = pd.DataFrame(row).rename(columns={index: "Value"})
-                row_df.index.name = "Cloumn"
+                row_df.index.name = "Features"
                 row_df = row_df.reset_index()
 
                 # جدول صغير في المنتصف
@@ -94,6 +94,7 @@ if df is not None:
 
 else:
     st.warning("ملف البيانات غير موجود.")
+
 
 
 
