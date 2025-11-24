@@ -8,21 +8,11 @@ DATA_PATH = Path("grades.xlsx")
 @st.cache_data(ttl=60)
 def load_data(path):
     try:
-        df = pd.read_excel(path, engine="openpyxl")
-
-        # ---- تحويل أعمدة الأرقام إلى نص لمنع اختفاء الصفر وتحويلها لـ decimal ----
-        cols_to_convert = ["رقم الطالب", "رقم ولي الأمر"]
-        for col in cols_to_convert:
-            if col in df.columns:
-                df[col] = df[col].astype(str).str.replace(".0", "", regex=False)
-
+        df = pd.read_excel(path, engine="openpyxl", dtype=str)
         return df
-
     except Exception as e:
         st.error(f"خطأ في قراءة الملف: {e}")
         return None
-
-
 # ----------- إعداد الصفحة -----------
 st.set_page_config(layout="wide")
 
@@ -104,6 +94,7 @@ if df is not None:
 
 else:
     st.warning("ملف البيانات غير موجود.")
+
 
 
 
